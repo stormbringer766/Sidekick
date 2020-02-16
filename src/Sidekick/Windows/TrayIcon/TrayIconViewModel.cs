@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Hardcodet.Wpf.TaskbarNotification;
+using Microsoft.Extensions.Options;
 using Sidekick.Core.Initialization;
 using Sidekick.Core.Settings;
 using Sidekick.Localization;
@@ -18,14 +19,14 @@ namespace Sidekick.Windows.TrayIcon
     public class TrayIconViewModel : IOnAfterInit, IDisposable
     {
         private readonly App application;
-        private readonly SidekickSettings settings;
+        private readonly IOptionsMonitor<SidekickSettings> settings;
         private readonly IUILanguageProvider uiLanguageProvider;
         private readonly IViewLocator viewLocator;
         private readonly ApplicationLogsController applicationLogsController;
 
         public TrayIconViewModel(
             App application,
-            SidekickSettings settings,
+            IOptionsMonitor<SidekickSettings> settings,
             IUILanguageProvider uiLanguageProvider,
             IViewLocator viewLocator,
             ApplicationLogsController applicationLogsController)
@@ -59,7 +60,7 @@ namespace Sidekick.Windows.TrayIcon
 
                 TrayIcon.ShowBalloonTip(
                     TrayResources.Notification_Title,
-                    string.Format(TrayResources.Notification_Message, settings.Key_CheckPrices.ToKeybindString(), settings.Key_CloseWindow.ToKeybindString()),
+                    string.Format(TrayResources.Notification_Message, settings.CurrentValue.Key_CheckPrices.ToKeybindString(), settings.CurrentValue.Key_CloseWindow.ToKeybindString()),
                     TrayIcon.Icon,
                     largeIcon: true);
             }

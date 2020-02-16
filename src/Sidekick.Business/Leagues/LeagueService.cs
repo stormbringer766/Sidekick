@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Sidekick.Business.Apis.Poe;
 using Sidekick.Business.Apis.Poe.Models;
 using Sidekick.Core.Initialization;
@@ -13,12 +14,12 @@ namespace Sidekick.Business.Leagues
     public class LeagueService : ILeagueService, IOnInit, IDisposable
     {
         private readonly IPoeApiClient poeApiClient;
-        private readonly SidekickSettings configuration;
+        private readonly IOptionsMonitor<SidekickSettings> configuration;
 
         public List<League> Leagues { get; private set; }
 
         public LeagueService(IPoeApiClient poeApiClient,
-            SidekickSettings configuration)
+            IOptionsMonitor<SidekickSettings> configuration)
         {
             this.poeApiClient = poeApiClient;
             this.configuration = configuration;
@@ -28,11 +29,11 @@ namespace Sidekick.Business.Leagues
         {
             Leagues = null;
             Leagues = await poeApiClient.Fetch<League>();
-            if (string.IsNullOrEmpty(configuration.LeagueId) ||
-                !Leagues.Exists(x => x.Id == configuration.LeagueId))
+            if (string.IsNullOrEmpty(configuration.CurrentValue.LeagueId) ||
+                !Leagues.Exists(x => x.Id == configuration.CurrentValue.LeagueId))
             {
-                configuration.LeagueId = Leagues.FirstOrDefault().Id;
-                configuration.Save();
+                configuration.CurrentValue.LeagueId = Leagues.First().Id;
+                configuration.CurrentValue.Save();
             }
         }
 

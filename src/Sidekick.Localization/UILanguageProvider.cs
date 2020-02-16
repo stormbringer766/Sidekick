@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Options;
 using Sidekick.Core.Settings;
 
 namespace Sidekick.Localization
@@ -13,16 +14,16 @@ namespace Sidekick.Localization
 
         public event Action UILanguageChanged;
 
-        public UILanguageProvider(SidekickSettings settings)
+        public UILanguageProvider(IOptionsMonitor<SidekickSettings> settings)
         {
             AvailableLanguages = SupportedLanguages
                 .Select(x => new CultureInfo(x))
                 .ToList();
 
-            var current = AvailableLanguages.FirstOrDefault(x => x.Name == settings.Language_UI);
+            var current = AvailableLanguages.FirstOrDefault(x => x.Name == settings.CurrentValue.Language_UI);
             if (current != null)
             {
-                SetLanguage(settings.Language_UI);
+                SetLanguage(settings.CurrentValue.Language_UI);
             }
             else
             {

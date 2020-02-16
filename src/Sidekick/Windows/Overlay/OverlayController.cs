@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Microsoft.Extensions.Options;
 using Sidekick.Business.Apis.Poe.Models;
 using Sidekick.Business.Apis.PoeNinja;
 using Sidekick.Business.Apis.PoePriceInfo.Models;
@@ -29,7 +30,7 @@ namespace Sidekick.Windows.Overlay
         private readonly ILogger logger;
         private readonly IItemParser itemParser;
         private readonly IPoeNinjaCache poeNinjaCache;
-        private readonly SidekickSettings settings;
+        private readonly IOptionsMonitor<SidekickSettings> settings;
         private readonly OverlayWindow overlayWindow;
 
         private static readonly int WINDOW_WIDTH = 480;
@@ -46,7 +47,7 @@ namespace Sidekick.Windows.Overlay
             ILogger logger,
             IItemParser itemParser,
             IPoeNinjaCache poeNinjaCache,
-            SidekickSettings settings)
+            IOptionsMonitor<SidekickSettings> settings)
         {
             this.tradeClient = tradeClient;
             this.nativeProcess = nativeProcess;
@@ -190,7 +191,7 @@ namespace Sidekick.Windows.Overlay
 
         private Task MouseClicked(int x, int y)
         {
-            if (!IsDisplayed || !settings.CloseOverlayWithMouse) return Task.CompletedTask;
+            if (!IsDisplayed || !settings.CurrentValue.CloseOverlayWithMouse) return Task.CompletedTask;
 
             var overlayPos = GetOverlayPosition();
             var overlaySize = GetOverlaySize();

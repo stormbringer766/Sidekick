@@ -5,6 +5,7 @@ using Sidekick.Core.Loggers;
 using Sidekick.Core.Natives;
 using Sidekick.Core.Settings;
 using WindowsHook;
+using Microsoft.Extensions.Options;
 
 namespace Sidekick.Natives
 {
@@ -12,12 +13,12 @@ namespace Sidekick.Natives
     {
         private readonly ILogger logger;
         private readonly INativeProcess nativeProcess;
-        private readonly SidekickSettings configuration;
+        private readonly IOptionsMonitor<SidekickSettings> configuration;
         private readonly INativeKeyboard nativeKeyboard;
 
         public KeybindEvents(ILogger logger,
             INativeProcess nativeProcess,
-            SidekickSettings configuration,
+            IOptionsMonitor<SidekickSettings> configuration,
             INativeKeyboard nativeKeyboard)
         {
             this.logger = logger;
@@ -60,7 +61,7 @@ namespace Sidekick.Natives
         {
             Task.Run(async () =>
             {
-                if (!Enabled || !configuration.CloseOverlayWithMouse)
+                if (!Enabled || !configuration.CurrentValue.CloseOverlayWithMouse)
                 {
                     return;
                 }
@@ -73,7 +74,7 @@ namespace Sidekick.Natives
         {
             Task.Run(() =>
             {
-                if (!configuration.EnableCtrlScroll || !nativeProcess.IsPathOfExileInFocus)
+                if (!configuration.CurrentValue.EnableCtrlScroll || !nativeProcess.IsPathOfExileInFocus)
                 {
                     return;
                 }
@@ -106,15 +107,15 @@ namespace Sidekick.Natives
 
                 Task<bool> task = null;
 
-                ExecuteKeybind("Close Window", configuration.Key_CloseWindow, input, OnCloseWindow, ref task);
-                ExecuteKeybind("Check Prices", configuration.Key_CheckPrices, input, OnPriceCheck, ref task);
-                ExecuteKeybind("Open Wiki", configuration.Key_OpenWiki, input, OnItemWiki, ref task);
-                ExecuteKeybind("Go to Hideout", configuration.Key_GoToHideout, input, OnHideout, ref task);
-                ExecuteKeybind("Find Items", configuration.Key_FindItems, input, OnFindItems, ref task);
-                ExecuteKeybind("Leave Party", configuration.Key_LeaveParty, input, OnLeaveParty, ref task);
-                ExecuteKeybind("Open Search", configuration.Key_OpenSearch, input, OnOpenSearch, ref task);
-                ExecuteKeybind("Open League Overview", configuration.Key_OpenLeagueOverview, input, OnOpenLeagueOverview, ref task);
-                ExecuteKeybind("Whisper Reply", configuration.Key_ReplyToLatestWhisper, input, OnWhisperReply, ref task);
+                ExecuteKeybind("Close Window", configuration.CurrentValue.Key_CloseWindow, input, OnCloseWindow, ref task);
+                ExecuteKeybind("Check Prices", configuration.CurrentValue.Key_CheckPrices, input, OnPriceCheck, ref task);
+                ExecuteKeybind("Open Wiki", configuration.CurrentValue.Key_OpenWiki, input, OnItemWiki, ref task);
+                ExecuteKeybind("Go to Hideout", configuration.CurrentValue.Key_GoToHideout, input, OnHideout, ref task);
+                ExecuteKeybind("Find Items", configuration.CurrentValue.Key_FindItems, input, OnFindItems, ref task);
+                ExecuteKeybind("Leave Party", configuration.CurrentValue.Key_LeaveParty, input, OnLeaveParty, ref task);
+                ExecuteKeybind("Open Search", configuration.CurrentValue.Key_OpenSearch, input, OnOpenSearch, ref task);
+                ExecuteKeybind("Open League Overview", configuration.CurrentValue.Key_OpenLeagueOverview, input, OnOpenLeagueOverview, ref task);
+                ExecuteKeybind("Whisper Reply", configuration.CurrentValue.Key_ReplyToLatestWhisper, input, OnWhisperReply, ref task);
 
                 // We need to make sure some key combinations make it into the game if the keybind returns false
                 SendInputIf("Ctrl+F", input, task);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 using Sidekick.Core.Initialization;
 using Sidekick.Core.Settings;
 
@@ -7,10 +8,10 @@ namespace Sidekick.Core.Loggers
 {
     public class Logger : ILogger, IDisposable
     {
-        private readonly SidekickSettings configuration;
+        private readonly IOptionsMonitor<SidekickSettings> configuration;
         private readonly IInitializer initializer;
 
-        public Logger(SidekickSettings configuration,
+        public Logger(IOptionsMonitor<SidekickSettings> configuration,
             IInitializer initializer)
         {
             this.configuration = configuration;

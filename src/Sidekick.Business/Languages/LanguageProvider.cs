@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Sidekick.Core.Extensions;
 using Sidekick.Core.Initialization;
 using Sidekick.Core.Loggers;
@@ -13,11 +14,11 @@ namespace Sidekick.Business.Languages
     {
         private readonly ILogger logger;
         private readonly IInitializer initializeService;
-        private readonly SidekickSettings settings;
+        private readonly IOptionsMonitor<SidekickSettings> settings;
 
         public LanguageProvider(ILogger logger,
             IInitializer initializeService,
-            SidekickSettings settings)
+            IOptionsMonitor<SidekickSettings> settings)
         {
             this.logger = logger;
             this.initializeService = initializeService;
@@ -31,7 +32,7 @@ namespace Sidekick.Business.Languages
                 AvailableLanguages.Add(attribute);
             }
 
-            if (!SetLanguage(settings.Language_Parser))
+            if (!SetLanguage(settings.CurrentValue.Language_Parser))
             {
                 SetLanguage(DefaultLanguage);
             }
@@ -48,7 +49,7 @@ namespace Sidekick.Business.Languages
         public ILanguage Language { get; private set; }
 
         /// <summary>
-        /// Every item should start with Rarity in the first line. 
+        /// Every item should start with Rarity in the first line.
         /// This will force the TradeClient to refetch the Public API's data if needed.
         /// </summary>
         public async Task FindAndSetLanguage(string itemDescription)
@@ -76,8 +77,8 @@ namespace Sidekick.Business.Languages
                 logger.Log($"Changed language support to {language.Name}.");
                 Language = (ILanguage)Activator.CreateInstance(language.ImplementationType);
 
-                settings.Language_Parser = name;
-                settings.Save();
+                settings.CurrentValue.Language_Parser = name;
+                settings.CurrentValue.Save();
 
                 return true;
             }

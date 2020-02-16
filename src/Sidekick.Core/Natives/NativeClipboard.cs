@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Sidekick.Core.Loggers;
 using Sidekick.Core.Settings;
 
@@ -6,11 +7,11 @@ namespace Sidekick.Core.Natives
 {
     public class NativeClipboard : INativeClipboard
     {
-        private readonly SidekickSettings settings;
+        private readonly IOptionsMonitor<SidekickSettings> settings;
         private readonly INativeKeyboard keyboard;
         private readonly ILogger logger;
 
-        public NativeClipboard(SidekickSettings settings, INativeKeyboard keyboard, ILogger logger)
+        public NativeClipboard(IOptionsMonitor<SidekickSettings> settings, INativeKeyboard keyboard, ILogger logger)
         {
             this.settings = settings;
             this.keyboard = keyboard;
@@ -21,7 +22,7 @@ namespace Sidekick.Core.Natives
         {
             var clipboardText = string.Empty;
 
-            if (settings.RetainClipboard)
+            if (settings.CurrentValue.RetainClipboard)
             {
                 clipboardText = await GetText();
             }
@@ -35,7 +36,7 @@ namespace Sidekick.Core.Natives
             // Retrieve clipboard.
             var text = await GetText();
 
-            if (settings.RetainClipboard)
+            if (settings.CurrentValue.RetainClipboard)
             {
                 await SetText(clipboardText);
             }

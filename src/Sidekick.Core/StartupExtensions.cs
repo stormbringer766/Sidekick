@@ -20,10 +20,7 @@ namespace Sidekick.Core
                 .AddJsonFile(SidekickSettings.FileName, optional: true, reloadOnChange: true);
 
             var configuration = builder.Build();
-
-            var sidekickConfiguration = DefaultSettings.CreateDefault();
-            configuration.Bind(sidekickConfiguration);
-            services.AddSingleton(sidekickConfiguration);
+            services.Configure<SidekickSettings>(options => configuration.Bind(options));
 
             return services;
         }
@@ -36,7 +33,7 @@ namespace Sidekick.Core
             return services;
         }
 
-        private static readonly HashSet<Type> intializeTypes = new HashSet<Type>
+        private static readonly HashSet<Type> InitializeTypes = new HashSet<Type>
         {
             typeof(IOnBeforeInit),
             typeof(IOnInit),
@@ -45,7 +42,7 @@ namespace Sidekick.Core
 
 
         /// <summary>
-        /// Registers a singleton service, along with any intializatation interfaces the implementation type also implements.
+        /// Registers a singleton service, along with any initialization interfaces the implementation type also implements.
         /// Required for integration with <see cref="IInitializer"/>.
         /// </summary>
         /// <typeparam name="TInterface"></typeparam>
@@ -57,7 +54,7 @@ namespace Sidekick.Core
         {
             services.AddSingleton<TInterface, TImplementation>();
 
-            foreach (var initializeInterface in typeof(TImplementation).GetInterfaces().Where(i => intializeTypes.Contains(i)))
+            foreach (var initializeInterface in typeof(TImplementation).GetInterfaces().Where(i => InitializeTypes.Contains(i)))
             {
                 services.AddSingleton(initializeInterface, serviceProvider => serviceProvider.GetRequiredService<TInterface>());
             }

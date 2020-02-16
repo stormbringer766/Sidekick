@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Sidekick.Business.Apis.PoeNinja.Models;
 using Sidekick.Business.Parsers.Models;
 using Sidekick.Core.Initialization;
@@ -20,7 +21,7 @@ namespace Sidekick.Business.Apis.PoeNinja
     {
         private readonly IPoeNinjaClient client;
         private readonly ILogger logger;
-        private readonly SidekickSettings configuration;
+        private readonly IOptionsMonitor<SidekickSettings> configuration;
 
         public DateTime? LastRefreshTimestamp { get; private set; }
 
@@ -31,7 +32,7 @@ namespace Sidekick.Business.Apis.PoeNinja
 
         public PoeNinjaCache(IPoeNinjaClient client,
                              ILogger logger,
-                             SidekickSettings configuration)
+                             IOptionsMonitor<SidekickSettings> configuration)
         {
             this.client = client;
             this.logger = logger;
@@ -59,11 +60,11 @@ namespace Sidekick.Business.Apis.PoeNinja
 
             var itemsTasks = Enum.GetValues(typeof(ItemType))
                                  .Cast<ItemType>()
-                                 .Select(x => new { itemType = x, request = client.QueryItem(configuration.LeagueId, x) })
+                                 .Select(x => new { itemType = x, request = client.QueryItem(configuration.CurrentValue.LeagueId, x) })
                                  .ToList();
             var currenciesTasks = Enum.GetValues(typeof(CurrencyType))
                                       .Cast<CurrencyType>()
-                                      .Select(x => new { currencyType = x, request = client.QueryItem(configuration.LeagueId, x) })
+                                      .Select(x => new { currencyType = x, request = client.QueryItem(configuration.CurrentValue.LeagueId, x) })
                                       .ToList();
 
             await Task.WhenAll(itemsTasks.Select(x => x.request).Cast<Task>().Concat(currenciesTasks.Select(x => x.request).Cast<Task>()));

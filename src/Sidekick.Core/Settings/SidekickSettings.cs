@@ -5,6 +5,27 @@ namespace Sidekick.Core.Settings
 {
     public class SidekickSettings
     {
+        public SidekickSettings()
+        {
+            Language_UI = "en";
+            Language_Parser = "English";
+            LeagueId = string.Empty;
+            Character_Name = string.Empty;
+            Wiki_Preferred = WikiSetting.PoeWiki;
+            RetainClipboard = true;
+            CloseOverlayWithMouse = true;
+            EnableCtrlScroll = true;
+            Key_CloseWindow = "Space";
+            Key_CheckPrices = "Ctrl+D";
+            Key_GoToHideout = "F5";
+            Key_OpenWiki = "Alt+W";
+            Key_FindItems = "Ctrl+F";
+            Key_LeaveParty = "F4";
+            Key_OpenSearch = "Alt+Q";
+            Key_OpenLeagueOverview = "F6";
+            Key_ReplyToLatestWhisper = "Ctrl+Shift+R";
+        }
+
         public const string FileName = "Sidekick_settings.json";
 
         public string Language_UI { get; set; }
@@ -44,7 +65,7 @@ namespace Sidekick.Core.Settings
         public void Save()
         {
             var json = JsonSerializer.Serialize(this);
-            var defaults = JsonSerializer.Serialize(DefaultSettings.Settings);
+            var defaults = JsonSerializer.Serialize(new SidekickSettings());
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), FileName);
 
             // Backup old settings

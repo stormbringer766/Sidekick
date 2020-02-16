@@ -10,6 +10,7 @@ using Sidekick.Core.Natives;
 using Sidekick.Core.Settings;
 using Sidekick.Natives.Helpers;
 using WindowsHook;
+using Microsoft.Extensions.Options;
 
 namespace Sidekick.Natives
 {
@@ -29,10 +30,10 @@ namespace Sidekick.Natives
         };
 
         private readonly ILogger logger;
-        private readonly SidekickSettings configuration;
+        private readonly IOptionsMonitor<SidekickSettings> configuration;
 
         public NativeKeyboard(ILogger logger,
-            SidekickSettings configuration)
+            IOptionsMonitor<SidekickSettings> configuration)
         {
             this.logger = logger;
             this.configuration = configuration;
@@ -121,12 +122,12 @@ namespace Sidekick.Natives
                     break;
                 case KeyboardCommandEnum.LeaveParty:
                     // This operation is only valid if the user has added their character name to the settings file.
-                    if (string.IsNullOrEmpty(configuration.Character_Name))
+                    if (string.IsNullOrEmpty(configuration.CurrentValue.Character_Name))
                     {
                         logger.Log(@"This command requires a ""CharacterName"" to be specified in the settings menu.", LogState.Warning);
                         return;
                     }
-                    SendKeys.SendWait($"{{Enter}}/kick {configuration.Character_Name}{{Enter}}");
+                    SendKeys.SendWait($"{{Enter}}/kick {configuration.CurrentValue.Character_Name}{{Enter}}");
                     break;
                 case KeyboardCommandEnum.ReplyToLatestWhisper:
                     SendKeys.SendWait("{Enter}^{a}^{v}");

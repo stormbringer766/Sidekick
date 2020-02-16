@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Sidekick.Business.Apis.Poe;
 using Sidekick.Business.Apis.Poe.Models;
 using Sidekick.Business.Categories;
@@ -23,7 +24,7 @@ namespace Sidekick.Business.Trades
         private readonly ILanguageProvider languageProvider;
         private readonly IHttpClientProvider httpClientProvider;
         private readonly IStaticItemCategoryService staticItemCategoryService;
-        private readonly SidekickSettings configuration;
+        private readonly IOptionsMonitor<SidekickSettings> configuration;
         private readonly IPoeApiClient poeApiClient;
         private readonly INativeBrowser nativeBrowser;
 
@@ -31,7 +32,7 @@ namespace Sidekick.Business.Trades
             ILanguageProvider languageProvider,
             IHttpClientProvider httpClientProvider,
             IStaticItemCategoryService staticItemCategoryService,
-            SidekickSettings configuration,
+            IOptionsMonitor<SidekickSettings> configuration,
             IPoeApiClient poeApiClient,
             INativeBrowser nativeBrowser)
         {
@@ -59,15 +60,15 @@ namespace Sidekick.Business.Trades
 
                 if (IsBulk(item.Type))
                 {
-                    path = $"exchange/{configuration.LeagueId}";
+                    path = $"exchange/{configuration.CurrentValue.LeagueId}";
                     json = JsonSerializer.Serialize(new BulkQueryRequest(item, languageProvider.Language, staticItemCategoryService), poeApiClient.Options);
-                    baseUri = languageProvider.Language.PoeTradeExchangeBaseUrl + configuration.LeagueId;
+                    baseUri = languageProvider.Language.PoeTradeExchangeBaseUrl + configuration.CurrentValue.LeagueId;
                 }
                 else
                 {
-                    path = $"search/{configuration.LeagueId}";
+                    path = $"search/{configuration.CurrentValue.LeagueId}";
                     json = JsonSerializer.Serialize(new QueryRequest(item, languageProvider.Language), poeApiClient.Options);
-                    baseUri = languageProvider.Language.PoeTradeSearchBaseUrl + configuration.LeagueId;
+                    baseUri = languageProvider.Language.PoeTradeSearchBaseUrl + configuration.CurrentValue.LeagueId;
                 }
 
                 var body = new StringContent(json, Encoding.UTF8, "application/json");

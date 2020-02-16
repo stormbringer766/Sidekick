@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using Sidekick.Business.Leagues;
 using Sidekick.Core.Natives;
 using Sidekick.Core.Settings;
@@ -14,11 +15,11 @@ namespace Sidekick.UI.Settings
         public event PropertyChangedEventHandler PropertyChanged;
 
         private readonly IUILanguageProvider uiLanguageProvider;
-        private readonly SidekickSettings sidekickSettings;
+        private readonly IOptionsMonitor<SidekickSettings> sidekickSettings;
         private readonly INativeKeyboard nativeKeyboard;
 
         public SettingsViewModel(IUILanguageProvider uiLanguageProvider,
-            SidekickSettings sidekickSettings,
+            IOptionsMonitor<SidekickSettings> sidekickSettings,
             INativeKeyboard nativeKeyboard,
             ILeagueService leagueService)
         {
@@ -27,7 +28,7 @@ namespace Sidekick.UI.Settings
             this.nativeKeyboard = nativeKeyboard;
 
             Settings = new SidekickSettings();
-            AssignValues(sidekickSettings, Settings);
+            AssignValues(sidekickSettings.CurrentValue, Settings);
 
             Keybinds.Clear();
             Settings.GetType()
@@ -66,9 +67,9 @@ namespace Sidekick.UI.Settings
                 keybindProperties.First(x => x.Name == keybind.Key).SetValue(Settings, keybind.Value);
             };
 
-            AssignValues(Settings, sidekickSettings);
+            AssignValues(Settings, sidekickSettings.CurrentValue);
             uiLanguageProvider.SetLanguage(Settings.Language_UI);
-            sidekickSettings.Save();
+            sidekickSettings.CurrentValue.Save();
         }
 
         public bool IsKeybindUsed(string keybind, string ignoreKey = null)
